@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="js/device.min.js"></script>
+<script>///if(!device.mobile()){window.location.href = "http://www.baidu.com";}</script>
+<head>
+<title></title>
+<style type="text/css" >
+	*{margin:0;padding:0;}
+	body{background:#222;}
+        
+	canvas{display:block;background:#000;border:8px solid #999}
+        
+</style>
+</head>
+<body>
+
+<canvas id="canvas" width="640" height="900"></canvas>
+
+</body>
+</html>
+<script type="text/javascript">
+window.onload = function(){
+	var canEle = document.getElementById('canvas');
+	if(!canEle||!canEle.getContext){return;}
+	var cont2D = canEle.getContext("2d");
+	var i=0;
+	function writeO(){
+		var x = Math.random()
+		
+		var sd=10,//标准差
+			mean = 320;//平均值
+		x = sd*x+mean;
+		
+		x = getNumberInNormalDistribution(320,30)
+		
+		
+		cont2D.beginPath();
+		cont2D.arc(x,75,3,0,2*Math.PI,true);
+		cont2D.fillStyle = 'rgba(255,255,255,.5)';
+		cont2D.fill();
+		if(++i>100)clearInterval(anim);
+	}
+	var anim = setInterval(writeO,50);
+	
+	
+};
+
+
+
+function getNumberInNormalDistribution(mean,std_dev){
+    return mean+(randomNormalDistribution()*std_dev);
+}
+ 
+function randomNormalDistribution(){
+    var u=0.0, v=0.0, w=0.0, c=0.0;
+    do{
+        //获得两个（-1,1）的独立随机变量
+        u=Math.random()*2-1.0;
+        v=Math.random()*2-1.0;
+        w=u*u+v*v;
+		if(w==0.0||w>=1.0)console.log(1)
+    }while(w==0.0||w>=1.0)
+    //这里就是 Box-Muller转换
+    c=Math.sqrt((-2*Math.log(w))/w);
+    //返回2个标准正态分布的随机数，封装进一个数组返回
+    //当然，因为这个函数运行较快，也可以扔掉一个
+    //return [u*c,v*c];
+    return u*c;
+}
+
+
+
+
+
+
+
+
+
+
+</script>

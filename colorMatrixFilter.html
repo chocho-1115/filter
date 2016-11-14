@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>colorMatrixFilter</title>
+<link rel="stylesheet" href="css/examples.css" />
+</head>
+<body>
+<div id="imgEleBox"></div>
+<canvas id="canvas" width="640" height="800"></canvas>
+</body>
+</html>
+
+<script src="js/examples.js"></script>
+
+<script src="js/Filter.js"></script>
+<script src="js/preloadImage.js"></script>
+<script src="js/ColorMatrixFilter.js"></script>
+
+<script type="text/javascript">
+
+window.onload = function(){
+
+	
+	
+    //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
+	
+    FILTER.preload('images/500.jpg',function(item){
+			
+				item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
+				item.result.height=imgH;
+			
+				var F1 = new FILTER.Create(item.result);
+			
+				F1.setBounds(0, 0, imgW, imgH);
+
+				//显示原图
+				addImgToCan(F1,'original');
+				
+				var matrix = [];
+				matrix=matrix.concat([2,-1,0,0,0]);// red
+				matrix=matrix.concat([-1,2,0,0,0]);// green
+				matrix=matrix.concat([0,-1,2,0,0]);// blue
+				matrix=matrix.concat([0,0,0,1,0]);// alpha
+
+				var cmf = new FILTER.ColorMatrixFilter(matrix);
+                cmf.apply(F1.imgData);
+                addImgToCan(F1,'色彩调整');//色彩调整
+				
+				addImgToEle(F1.getBase64(),'mask');
+				
+				var copyData = F1.copyData();
+				var F2 = new FILTER.Create(copyData);
+				
+				
+				//在色彩调整后的基础上 得到红色蒙板
+                cmf.clear().redChannel(0);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'matrix+redChannel(0)');
+				
+				//addImgToEle(F2.getBase64(),'mask');
+
+				//在色彩调整的前  通过色彩调整矩阵与红色矩阵的乘积  再得出绿色蒙板
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+                cmf.redChannel(1);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'matrix+redChannel(1)');
+
+
+				//reviseBlueChannel  通道调整
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+                cmf.reviseGreen(0);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'reviseGreen(0) 通道调整');
+				
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+                cmf.reviseGreen(1.5,10);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'reviseGreen(1.5,10) 通道调整');
+				
+				//desaturate
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.desaturate();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'desaturate() 去色');
+				
+				//average 平均
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.average(1,0,0);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'平均 average(.6,.2,.2)');
+				
+				
+				//brightness 明度
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.brightness(80);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'明度 brightness(80)');
+				
+				//colorize
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.colorize(0xff9900,.5);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'着色 colorize(0xff9900,.5)');
+				
+				//invert
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.invert();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'反向 invert()');
+				
+				//invertGreen
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.invertGreen();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'反向 invertGreen()');
+				
+				//invertAlpha
+				F2.imgData = FILTER.copyData(copyData);
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.reviseAlpha(.3).invertAlpha();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.reviseAlpha(.3).invertAlpha()');
+				
+				
+				//saturate 饱和度
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.saturate(0.2);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'饱和度 .saturate(.2)');
+				
+				
+				
+				//contrast 对比度
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.contrast(2);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.contrast(1) 对比度');
+				
+				//quickContrastCorrection 快速校正对比度
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.quickContrastCorrection();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'快速校正对比度.quickContrastCorrection()');
+				
+				
+				
+				//adjustHue 色环调整
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.adjustHue(180);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'色环调整.adjustHue(180)');
+				
+				
+				
+				
+				//sepia 偏色  红褐色色调的单色模仿旧照片。
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.sepia(1);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.sepia(1) 褐色调旧照片');
+				
+				
+				//sepia 偏色  红褐色色调的单色模仿旧照片。
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.sepia2(1);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.sepia(1) 红褐色调旧照片');
+				
+				
+				//threshold 阈值
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.threshold(125,66);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.threshold(125,66) threshold 阈值');
+				
+				//threshold_rgb 阈值
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.threshold_rgb(125,66);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.threshold_rgb(125,66) threshold_rgb 阈值');
+				
+				
+				//http://m.blog.csdn.net/article/details?id=48317339 
+				//RGB2YCbCr 
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.RGB2YCbCr();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.RGB2YCbCr() RGB转YCbCr');
+				
+				
+				
+				//YCbCr2RGB 
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.YCbCr2RGB();
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.YCbCr2RGB() YCbCr转RGB');
+				
+				
+				//swapChannels  交换通道
+				F2.reset();
+				cmf = new FILTER.ColorMatrixFilter();
+				cmf.swapChannels(0,1);
+				cmf.apply(F2.imgData);
+				addImgToCan(F2,'.swapChannels(0,1) 交换通道');
+				
+				
+				
+				
+                
+		},function(result){
+			
+			
+			
+		});
+	
+
+};
+
+
+
+
+
+
+
+
+</script>

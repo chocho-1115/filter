@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>滤镜</title>
+<link rel="stylesheet" href="css/examples.css" />
+</head>
+<body>
+<div id="imgEleBox"></div>
+<canvas id="canvas" width="640" height="800"></canvas>
+</body>
+</html>
+
+<script src="js/examples.js"></script>
+
+
+<script src="js/hammer.js"></script>
+<script src="js/tween.js"></script>
+<script src="js/Filter.js"></script>
+<script src="js/preloadImage.js"></script>
+<script src="js/FilterType.js"></script>
+<script src="js/ColorMatrixFilter.js"></script>
+
+<script type="text/javascript">
+
+window.onload = function(){
+	
+	var imgO = new Image();
+	//imgO.width = 200;
+	//imgO.height = 200;
+	imgO.onload = function(){
+		this.width = imgW;
+		this.height = imgH;
+
+		var F1 =  FILTER.Create(this);
+        
+		F1.setBounds(0,0,imgW,imgH);
+		
+		addImgToCan(F1, 'original');//第一张 显示原图
+		
+		var copyData = F1.copyData();//复制imgData数据 因为imgData是引用型数据 所以每次使用滤镜功能 都会改变F1的imgData数据
+		
+		addImgToCan(F1.setType('gray'),'gray');//第二张显示 灰度滤镜
+		
+		addImgToCan(F1.setType('mask'),'gray+mask');//第三张是在灰度滤镜的基础上再使用了蒙板滤镜
+		
+		F1.imgData = copyData;//还原F1的图像数据
+		
+		addImgToCan(F1.setType('mask'),'mask');//第四张在原图的基础上使用蒙板滤镜
+		
+		//addImgToCan(F1.setType('enlarge'));
+		
+		//显示为img图片
+		addImgToEle(F1.getBase64(),'mask');
+	};
+	imgO.src='images/7.jpg';
+    
+	
+	
+    /*++++++++++++++++++++++++++++++++++++++++++*/
+	
+	
+    //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
+	var imgSrcArr = [
+				{path:'images/8.jpg'},
+			    {path:'images/8.jpg'},
+			    {path:'images/500.jpg'},
+				{path:'images/7.jpg'},
+	];
+	
+    FILTER.preload(imgSrcArr,function(item){
+			
+			item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
+			item.result.height=imgH;
+			
+			var F2 = new FILTER.Create(item.result);
+			
+			F2.setBounds(0, 0, imgW, imgH);
+
+			if(item.index===0){
+				F2.setType('enlarge');
+				addImgToCan(F2.imgData,'enlarge');//放大
+			}else if(item.index===1){
+				addImgToCan(F2.setType('gray').setType('magnifier'),'gray+magnifier');//放大镜
+			}else if(item.index===2){
+				
+                var copyData = F2.copyData();
+				//显示原图
+				addImgToCan(F2,'original');
+				
+				var matrix = [];
+				matrix=matrix.concat([2,-1,0,0,0]);// red
+				matrix=matrix.concat([-1,2,0,0,0]);// green
+				matrix=matrix.concat([0,-1,2,0,0]);// blue
+				matrix=matrix.concat([0,0,0,1,0]);// alpha
+
+				var cmf = new FILTER.ColorMatrixFilter(matrix);
+                cmf.apply(F2.imgData);
+                addImgToCan(F2,'matrix(色彩调整)');//色彩调整
+				
+				
+				//addImgToEle(F2.getBase64(),'mask');
+				
+				
+				//在色彩调整后的基础上 得到红色蒙板
+                cmf.reset().redChannel(1);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'');
+				
+				//addImgToEle(F2.getBase64(),'mask');
+
+				//在色彩调整的前  通过色彩调整矩阵与红色矩阵的乘积  再得出绿色蒙板
+				F2.imgData = FILTER.copyData(copyData);
+				cmf = new FILTER.ColorMatrixFilter(matrix);
+                cmf.redChannel(1);
+                cmf.apply(F2.imgData);
+				addImgToCan(F2,'');
+
+
+
+                
+			}
+		},function(result){
+			
+			//加载完了 设置画布的点击与长按事件
+			
+			var data;
+			var data_;
+			var B = true;
+			
+			var mc = new Hammer(canEle);
+			//mc.get('press').set({time:1000});
+			mc.get('press').set({time:0});
+			
+			mc.on("press",function(e){
+				if(B){
+					B = false;
+					data = cont2D.getImageData(0, 0, 3, 3);
+					data_ = cont2D.getImageData(0, 0, canW, canH);
+				}
+				data = cont2D.getImageData(0, 0, canW, canH);
+				cont2D.clearRect(0,0,canW,canH);
+				
+				var bounding = canEle.getBoundingClientRect();
+				addImgToCan(FILTER.type.magnifier(data,{
+					centerX:e.center.x-8-bounding.left,
+					centerY:e.center.y-8-bounding.top
+				}));
+			});
+			
+			mc.on("pressup",function(e){
+				cont2D.clearRect(0,0,canW,canH);
+				addImgToCan(data_);
+			});
+			
+		});
+	
+
+};
+
+
+
+
+
+
+
+
+</script>

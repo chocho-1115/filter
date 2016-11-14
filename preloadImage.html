@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>preloadImage</title>
+<link rel="stylesheet" href="css/examples.css" />
+</head>
+<body>
+<div id="imgEleBox"></div>
+<canvas id="canvas" width="640" height="800"></canvas>
+</body>
+</html>
+
+<script src="js/examples.js"></script>
+<script src="js/Filter.js"></script>
+<script src="js/preloadImage.js"></script>
+
+<script type="text/javascript">
+
+window.onload = function(){
+	
+
+	var imgO = new Image();
+	//imgO.width = 200;
+	//imgO.height = 200;
+	imgO.onload = function(){
+		this.width = imgW;
+		this.height = imgH;
+
+		var F1 = FILTER.Create(this);
+        
+		F1.setBounds(0,0,imgW,imgH);
+		
+		addImgToCan(F1, 'onload');//第一张 显示原图
+		
+		//显示为img图片
+		addImgToEle(F1.getBase64(),'onload');
+	};
+	imgO.src='images/7.jpg';
+    
+    /*++++++++++++++++++++++++++++++++++++++++++*/
+	
+    //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
+	var imgSrcArr = [
+				{path:'images/8.jpg',name:'pic1'},
+			    {path:'images/8.jpg',name:'pic2'},
+			    {path:'images/500.jpg',name:'pic3'}
+	];
+	
+    FILTER.preload(imgSrcArr,function(item){
+			
+			item.result.width=window.imgW;//这里设置图片宽高 是会缩放图片的
+			item.result.height=window.imgH;
+			
+			var F1 =  FILTER.Create(item.result);
+			
+			addImgToCan(F1, item.name);//第一张 显示原图
+			
+		},function(result){
+			
+			console.log('完成');
+			
+		});
+	
+
+};
+
+
+
+
+
+
+
+
+</script>
