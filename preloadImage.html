@@ -47,20 +47,21 @@ window.onload = function(){
 			    {path:'images/500.jpg',name:'pic3'}
 	];
 	
-    FILTER.preload(imgSrcArr,function(item){
-			
-			item.result.width=window.imgW;//这里设置图片宽高 是会缩放图片的
-			item.result.height=window.imgH;
-			
-			var F1 =  FILTER.Create(item.result);
-			
-			addImgToCan(F1, item.name);//第一张 显示原图
-			
-		},function(result){
-			
-			console.log('完成');
-			
-		});
+    FILTER.preload(imgSrcArr,{
+							fileload: function(item){
+						
+								item.result.width=window.imgW;//这里设置图片宽高 是会缩放图片的
+								item.result.height=window.imgH;
+								
+								var F1 =  FILTER.Create(item.result);
+								
+								addImgToCan(F1, item.name);//第一张 显示原图
+						
+							},
+							complete: function(result){
+								console.log(result);
+							}}
+	);
 	
 
 };
