@@ -103,7 +103,7 @@
             return this;
 		},
 		
-		//设置滤镜
+		//临时方法 后期会去掉此方法  
 		setType : function(typeName){
 			
 			if(!this.imgData)throw('this.imgObj is null');
