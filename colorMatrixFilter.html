@@ -25,7 +25,7 @@ window.onload = function(){
 	
     //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
 	
-    FILTER.preload('images/500.jpg',function(item){
+    FILTER.preload('images/500.jpg',{fileload:function(item){
 			
 				item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
 				item.result.height=imgH;
@@ -227,11 +227,11 @@ window.onload = function(){
 				
 				
                 
-		},function(result){
+		},complete:function(result){
 			
 			
 			
-		});
+		}});
 	
 
 };
