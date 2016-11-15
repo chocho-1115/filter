@@ -57,8 +57,11 @@ function completeCallback(result){ //所有图片加载完后的回调函数
 }
 ```
 这里的第一个参数 imgSrcArr 可以是下面三种变量中的任意一种：
+
 第一种 可以是字符串：'images/8.jpg'；
+
 第二种 可以是字符串组成的数组 ['images/8.jpg','images/9.jpg','images/10.png']；
+
 第三种 可以是自定义的属对象数组 [{path:'images/9.jpg',name:'pic1'},{path:'images/8.jpg',name:'pic2',id:'my'},{path:'images/80.jpg',name:'pic3'}]
 
 在complete属性指向的回调函数，是在所有图片都加载完后调用的。参数result是一个对象，默认情况下是一个以imgSrcArr的下标为属性名，以img对象为属性值的对象（属性名可以自定义，以id值为属性名）：
