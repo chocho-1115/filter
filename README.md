@@ -1,5 +1,5 @@
 
-本文主要介绍 filter.js 和 preloadImage.js
+这里主要介绍 filter.js 和 preloadImage.js
 
 colorMatrixFilter.js 和 ConvolutionMatrixFilter.js 可以在这里查看 [这里](http://www.indent.top/blog/tags/filter/)
 
