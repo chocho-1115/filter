@@ -7,18 +7,18 @@ this.FILTER = this.FILTER || {};
 	
 	var F = FILTER;
 	
-	
-	F.preload = F.preload || function(srcArr, fileload, complete){
+	//callbackObj
+	//{fileload: function(item){}, complete: function(result){}}
+	F.preload = F.preload || function(srcArr, callbackObj){
 		
 		if(typeof(srcArr) == 'string'){
 			srcArr = [{path:srcArr}];
 		};
 		
-		if(srcArr.length==0){complete({});return false};
+		if(srcArr.length==0){callbackObj.complete&&callbackObj.complete({});return false};
 		
 		var num = 0,
 			imgArrObj = {};
-
 		
 		for(var i = 0, len = srcArr.length; i < len; i++){
 			(function(i){
@@ -40,7 +40,7 @@ this.FILTER = this.FILTER || {};
 		
 		function endLoad(this_, eType, i) {
 			num++;
-			var progress = Math.floor(num * 100 / len);
+			var progress = num / len;
 			
 			srcArr[i]['result'] = this_;
 			srcArr[i]['progress'] = progress;
@@ -49,9 +49,9 @@ this.FILTER = this.FILTER || {};
 			
 			imgArrObj[srcArr[i].id || i+''] = this_;
 			
-			fileload(srcArr[i]);
+			callbackObj.fileload&&callbackObj.fileload(srcArr[i]);
 			
-			if(num === len) complete(imgArrObj);
+			if(num === len) callbackObj.complete&&callbackObj.complete(imgArrObj);
 		}
 		
 	};
