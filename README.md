@@ -1,13 +1,11 @@
----
-title: javascript滤镜
----
 
 ---
 本文主要介绍 filter.js 和 preloadImage.js
+colorMatrixFilter.js 和 ConvolutionMatrixFilter.js 可以在这里查看 [这里](http://www.indent.top/blog/tags/filter/)
  * filter.js //主文件
  * preloadImage.js //图片加载处理
  * colorMatrixFilter.js //颜色矩阵
- * ConvolutionMatrixFilter.js //卷积矩阵
+ * ConvolutionMatrixFilter.js //卷积矩阵 真正完善中
 ---
 ## filter.js
 #### 创建filter ：FILTER.Create( imgEle / ImageData )
