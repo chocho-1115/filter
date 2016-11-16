@@ -567,7 +567,7 @@
         },
 		
 		clone: function(){
-			return new _.ColorMatrixFilter(this.imgData);
+			return new _.ColorMatrixFilter(this.matrix);
 		},
 		
 		
