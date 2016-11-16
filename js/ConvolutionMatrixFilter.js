@@ -20,23 +20,79 @@
 								0, 1, 0,
 								0, 0, 0
 							];
+		this.originalMatrix = this.matrix.concat();
+		
+		//滤镜通道开关
+		this.awakeChannels = {};					
+		this.awakeChannels[ _.CHANNEL.RED   ] = true;
+		this.awakeChannels[ _.CHANNEL.GREEN ] = true;
+		this.awakeChannels[ _.CHANNEL.BLUE  ] = true;
+		//this.awakeChannels[ _.CHANNEL.ALPHA ] = true;
+		
 	};
     
 	_.ConvolutionMatrixFilter.prototype = {
 		
         constructor : 'ConvolutionMatrixFilter',
 		
+		//重置matrix的值为创建实例时的值
+		reset: function( ) {
+            this.matrix = this.originalMatrix.concat(); 
+            return this;
+        },
+		
+		clone: function(){
+			return new _.ConvolutionMatrixFilter(this.matrix);
+		},
+		
+		setAwakeRedChannel : function(bool){
+			if( bool === undefined ) bool = true;
+			this.awakeChannels[ _.CHANNEL.RED   ] = bool;
+			return this;
+		},
+		
+		setAwakeGreenChannel : function(bool){
+			if( bool === undefined ) bool = true;
+			this.awakeChannels[ _.CHANNEL.GREEN   ] = bool;
+			return this;
+		},
+		
+		setAwakeBlueChannel : function(bool){
+			if( bool === undefined ) bool = true;
+			this.awakeChannels[ _.CHANNEL.BLUE   ] = bool;
+			return this;
+		},
+		
+		setAwakeChannel : function( rBool, gBool, bBool ){
+			if( rBool === undefined ) return false;
+			if( gBool === undefined ) gBool = rBool;
+			if( bBool === undefined ) bBool = rBool;
+			
+			this.awakeChannels[ _.CHANNEL.RED   ] = rBool;
+			this.awakeChannels[ _.CHANNEL.GREEN ] = gBool;
+			this.awakeChannels[ _.CHANNEL.BLUE  ] = bBool;
+			
+			return this;
+		},
+		
 		copyData : function(imgData){
 		
 			if(!imgData) throw('parameters imgData are required');
 			
-			f2D.clearRect(0, 0, fCanvas.width, fCanvas.height);
+			/*var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
+			var arr_img = new ImageData(arr, 2, 2);
+			window.cont2D.putImageData(arr_img, 500, 500);
 			
-			fCanvas.width = imgData.width;
-			fCanvas.height = imgData.height;
-			f2D.putImageData(imgData, 0, 0);
 			
-			return f2D.getImageData(0, 0, imgData.width, imgData.height);
+			var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
+			var arr_img = window.cont2D.createImageData(2,2)
+			arr_img.data.set(arr);
+			window.cont2D.putImageData(arr_img, 550, 550);*/
+			
+			var arr = new Uint8ClampedArray(imgData.data);
+			var arr_img = new ImageData(arr, imgData.width, imgData.height);
+	
+			return arr_img;
 			
 		},
 		
@@ -55,12 +111,13 @@
 			// 对除了边缘的点之外的内部点的 RGB 进行操作，透明度在最后都设为 255
 			
 			if(Math.floor(r)!=r)throw('the length of the parameter m should be 9,25,49...');
-			
+
 			switch(r){
 				case 1:
 					for (var y = 1; y < h-1; y += 1) {//行
 						for (var x = 1; x < w-1; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
+								if(!self.awakeChannels[c])continue;
 								var i = (y*w + x)*4 + c;
 								oD[i] = (offset||0)
 									+(m[0]*iD[i-w*4-4] + m[1]*iD[i-w*4] + m[2]*iD[i-w*4+4]
@@ -76,6 +133,7 @@
 					for (var y = 2; y < h-2; y += 1) {//行
 						for (var x = 2; x < w-2; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
+								if(!self.awakeChannels[c])continue;
 								var i = (y*w + x)*4 + c;
 								oD[i] = (offset||0)
 									+(m[0 ]*iD[i-w*8-8] + m[1 ]*iD[i-w*8-4] + m[2 ]*iD[i-w*8] + m[3 ]*iD[i-w*8+4] + m[4 ]*iD[i-w*8+8]
@@ -95,6 +153,7 @@
 					for (var y = r; y < h-r; y += 1) {//图像行
 						for (var x = r; x < w-r; x += 1) {//图像列
 							for (var c = 0; c < 3; c += 1) {//rgb
+								if(!self.awakeChannels[c])continue;
 								var i = (y*w + x)*4 + c;//imageData对象的下标
 								var v = 0;
 								for(var k = 0;k < mLen;k++){//卷积核
