@@ -43,9 +43,7 @@ window.onload = function(){
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix);
 			cmf.apply(F1.imgData);
 			addImgToCan(F1,'浮雕（卷积核:3*3）');//浮雕
-			
-			//return false
-			
+						
 			F1.reset();
 			var matrix_ = [-1, -1, -1, -1, -1,
 						  -1,  2,  2,  2, -1,

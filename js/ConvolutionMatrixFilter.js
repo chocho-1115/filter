@@ -165,12 +165,14 @@
 						
 						for(var k = 0;k < mLen; k++){//卷积核
 							var mY = Math.floor(k/mW)-r, mX = k%mW-r; ///卷积核的x y 坐标
+							//顶部
 							if(x+mX<0 || x+mX>=w || y+mY<0){//超出图片矩阵范围
 								v += m[k]*iD[i];
 							}else{
 								v += m[k]*iD[i+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
 							}
 							
+							//底部
 							if(x_+mX<0 || x_+mX>=w || y_+mY>=h){//超出图片矩阵范围
 								v_ += m[k]*iD[i_];
 							}else{
@@ -204,12 +206,14 @@
 						
 						for(var k = 0;k < mLen; k++){//卷积核
 							var mY = Math.floor(k/mW)-r, mX = k%mW-r; ///卷积核的x y 坐标
-							if(x+mX<0){//超出图片矩阵范围
+							//左侧
+							if(x+mX<0){//超出图片矩阵范围 
 								v += m[k]*iD[i];
 							}else{
 								v += m[k]*iD[i+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
 							}
 							
+							//右侧
 							if(x_+mX>=w){//超出图片矩阵范围
 								v_ += m[k]*iD[i_];
 							}else{
