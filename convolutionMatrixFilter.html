@@ -25,7 +25,7 @@ window.onload = function(){
 	
     //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
 	
-    FILTER.preload('images/7.jpg',{fileload:function(item){
+    FILTER.preload('images/3.jpg',{fileload:function(item){
 			
 				item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
 				item.result.height=imgH;
@@ -42,8 +42,9 @@ window.onload = function(){
 			var matrix = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix);
 			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕（9*9）');//浮雕
+			addImgToCan(F1,'浮雕（卷积核:3*3）');//浮雕
 			
+			//return false
 			
 			F1.reset();
 			var matrix_ = [-1, -1, -1, -1, -1,
@@ -53,7 +54,21 @@ window.onload = function(){
 						  -1, -1, -1, -1, -1];
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
 			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕（9*9）');//浮雕
+			addImgToCan(F1,'浮雕（5*5）');//浮雕
+			
+			F1.reset();
+			cmf.reset();
+			cmf.awakeChannels[2] = false;
+			cmf.apply(F1.imgData);
+			addImgToCan(F1,'浮雕 不计算蓝色通道（5*5）');//浮雕
+			
+			F1.reset();
+			cmf.reset();
+			cmf.setAwakeChannel(false,false,true)
+			cmf.apply(F1.imgData);
+			addImgToCan(F1,'浮雕 只计算蓝色通道（5*5）');//浮雕
+			
+			//console.log(cmf)
 			
 ///////////////	
 			
@@ -74,7 +89,7 @@ window.onload = function(){
 			window.cont2D.putImageData(arr_img, 550, 550);
 			
 			var a = Array;
-			console.log(a)
+			//console.log(a)
 			
 		}});
 	

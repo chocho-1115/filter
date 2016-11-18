@@ -75,37 +75,19 @@
 			return this;
 		},
 		
-		copyData : function(imgData){
-		
-			if(!imgData) throw('parameters imgData are required');
-			
-			/*var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
-			var arr_img = new ImageData(arr, 2, 2);
-			window.cont2D.putImageData(arr_img, 500, 500);
-			
-			
-			var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
-			var arr_img = window.cont2D.createImageData(2,2)
-			arr_img.data.set(arr);
-			window.cont2D.putImageData(arr_img, 550, 550);*/
-			
-			var arr = new Uint8ClampedArray(imgData.data);
-			var arr_img = new ImageData(arr, imgData.width, imgData.height);
-	
-			return arr_img;
-			
-		},
-		
 		//imgData 图像数据  divisor 系数 offset偏移
 		apply : function(imgData, divisor, offset){
 			var self = this;
+			
+			if(!imgData) throw('parameters imgData are required');
 			// imgData副本 
-			var newImgData = self.copyData(imgData);//
+			var Uint8Arr = new Uint8ClampedArray(imgData.data);
+			var newImgData = new ImageData(Uint8Arr, imgData.width, imgData.height);
 		 	
 			var w = imgData.width, h = imgData.height;
 			var iD = newImgData.data, oD = imgData.data;
-			var m = self.matrix;
-		 	
+			
+			var m = self.matrix, mLen = m.length;
 			var mW = Math.sqrt(m.length);
 			var r = (mW-1)/2; ///卷积核半径
 			// 对除了边缘的点之外的内部点的 RGB 进行操作，透明度在最后都设为 255
@@ -113,7 +95,7 @@
 			if(Math.floor(r)!=r)throw('the length of the parameter m should be 9,25,49...');
 
 			switch(r){
-				case 1:
+				case 10:
 					for (var y = 1; y < h-1; y += 1) {//行
 						for (var x = 1; x < w-1; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
@@ -129,7 +111,7 @@
 						}
 					}
 				break;
-				case 2:
+				case 20:
 					for (var y = 2; y < h-2; y += 1) {//行
 						for (var x = 2; x < w-2; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
@@ -149,7 +131,6 @@
 				break;
 				
 				default:
-					var mLen = m.length;
 					for (var y = r; y < h-r; y += 1) {//图像行
 						for (var x = r; x < w-r; x += 1) {//图像列
 							for (var c = 0; c < 3; c += 1) {//rgb
@@ -157,7 +138,7 @@
 								var i = (y*w + x)*4 + c;//imageData对象的下标
 								var v = 0;
 								for(var k = 0;k < mLen;k++){//卷积核
-									v += m[k]*iD[i-w*4*(Math.floor(k/mW)-r)+4*(k%mW-r)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
+									v += m[k]*iD[i+w*4*(Math.floor(k/mW)-r)+4*(k%mW-r)]  ///Math.floor(k/mW)-r 卷积核的第几行即卷积核的y值  k%mW-r 卷积核的第几列即x值  卷积核中心为 [0, 0]
 								}
 								oD[i] = (offset||0)+v/(divisor||1); ///设置偏移与阈值
 							}
@@ -167,9 +148,82 @@
 				
 			}
 
-			//水平边界处理
-			for(var i = r; i < w - r; i++){
+			//水平边界处理 包括四个角
+			for(var y = 0; y < r; y++){//图像行
+				for(x = 0; x < w; x++){//图像列
 				
+					var x_ = x, y_ = h-y-1;
+					
+					for (var c = 0; c < 3; c += 1) {//rgb
+						if(!self.awakeChannels[c])continue;
+						//顶部
+						var i = (y*w + x)*4 + c;
+						var v = 0;
+						
+						var i_ = (y_*w + x_)*4 + c
+						var v_ = 0;
+						
+						for(var k = 0;k < mLen; k++){//卷积核
+							var mY = Math.floor(k/mW)-r, mX = k%mW-r; ///卷积核的x y 坐标
+							if(x+mX<0 || x+mX>=w || y+mY<0){//超出图片矩阵范围
+								v += m[k]*iD[i];
+							}else{
+								v += m[k]*iD[i+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
+							}
+							
+							if(x_+mX<0 || x_+mX>=w || y_+mY>=h){//超出图片矩阵范围
+								v_ += m[k]*iD[i_];
+							}else{
+								v_ += m[k]*iD[i_+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
+							}
+							
+						}
+						oD[i] = (offset||0)+v/(divisor||1); ///设置偏移与阈值
+						oD[i_] = (offset||0)+v_/(divisor||1);
+						//底部
+					}
+					oD[(y*w + x)*4 + 3] = 255; // 设置透明度
+					oD[(y_*w + x_)*4 + 3] = 255; // 设置透明度
+				}
+			}
+			
+			//垂直边界处理 不包括四个角
+			for(var y = r; y < h-r; y++){//图像行
+				for(x = 0; x < r; x++){//图像列
+				
+					var x_ = w-x-1, y_ = y;
+					
+					for (var c = 0; c < 3; c += 1) {//rgb
+						if(!self.awakeChannels[c])continue;
+						//左边
+						var i = (y*w + x)*4 + c;
+						var v = 0;
+						
+						var i_ = (y_*w + x_)*4 + c
+						var v_ = 0;
+						
+						for(var k = 0;k < mLen; k++){//卷积核
+							var mY = Math.floor(k/mW)-r, mX = k%mW-r; ///卷积核的x y 坐标
+							if(x+mX<0){//超出图片矩阵范围
+								v += m[k]*iD[i];
+							}else{
+								v += m[k]*iD[i+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
+							}
+							
+							if(x_+mX>=w){//超出图片矩阵范围
+								v_ += m[k]*iD[i_];
+							}else{
+								v_ += m[k]*iD[i_+w*4*(mY)+4*(mX)]  ///Math.floor(k/mW) 第几行  k%mW 第几列
+							}
+							
+						}
+						oD[i] = (offset||0)+v/(divisor||1); ///设置偏移与阈值
+						oD[i_] = (offset||0)+v_/(divisor||1);
+						//底部
+					}
+					oD[(y*w + x)*4 + 3] = 255; // 设置透明度
+					oD[(y_*w + x_)*4 + 3] = 255; // 设置透明度
+				}
 			}
 			
 			
