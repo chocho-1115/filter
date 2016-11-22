@@ -25,7 +25,7 @@ window.onload = function(){
 	
     //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
 	
-    FILTER.preload('images/3.jpg',{fileload:function(item){
+    FILTER.preload(['images/3.jpg','images/10.jpg','images/11.gif'],{fileload:function(item){
 			
 				item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
 				item.result.height=imgH;
@@ -39,7 +39,7 @@ window.onload = function(){
 				
 			//var copyData = F1.copyData();	
 				
-			var matrix = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
+			var matrix = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix);
 			cmf.apply(F1.imgData);
 			addImgToCan(F1,'浮雕（卷积核:3*3）');//浮雕
@@ -50,6 +50,7 @@ window.onload = function(){
 						  -1,  2,  8,  2, -1,
 						  -1,  2,  2,  2, -1,
 						  -1, -1, -1, -1, -1];
+			
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
 			cmf.apply(F1.imgData);
 			addImgToCan(F1,'浮雕（5*5）');//浮雕
@@ -75,6 +76,38 @@ window.onload = function(){
 		},complete:function(result){
 			
 			/*---------------------*/
+			console.log(result)
+			result[2].width=imgW;//这里设置图片宽高 是会缩放图片的
+			result[2].height=imgH;
+		
+			var F1 = new FILTER.Create(result[2]);
+		
+			F1.setBounds(0, 0, imgW, imgH);
+
+			
+				
+			//var copyData = F1.copyData();	
+				
+			var matrix = [2, 4, 5, 4, 2,
+						  4,  9,  12,  9, 4,
+						  5,  12,  15,  12, 5,
+						  4,  9,  12,  9, 4,
+						  2, 4, 5, 4, 2];
+						  
+			var matrix_ = FILTER.MMatrix.multiplyScalar(matrix,1/139)
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
+			cmf.apply(F1.imgData);
+			addImgToCan(F1,'消除噪声（卷积核:3*3）');//浮雕
+						
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
 			var arr_img = new ImageData(arr, 2, 2);
