@@ -15,12 +15,22 @@
 		//卷积核 默认为3*3的卷积核
 		var r = (Math.sqrt(mat.length)-1)/2; ///卷积核半径
 		if(Math.floor(r)!=r)throw('the length of the parameter m should be 9,25,49...');
-		this.matrix = mat&&mat.concat() || [
+		
+		this.matrix = mat && _.Float32Array( mat ) || _.Float32Array( [
+															0, 0, 0,
+															0, 1, 0,
+															0, 0, 0
+														] )
+		this.originalMatrix = _.Float32Array( this.matrix )
+		
+		
+		
+		/*this.matrix = mat&&mat.concat() || [
 								0, 0, 0,
 								0, 1, 0,
 								0, 0, 0
-							];
-		this.originalMatrix = this.matrix.concat();
+							];*/
+		//this.originalMatrix = this.matrix.concat();
 		
 		//滤镜通道开关
 		this.awakeChannels = {};					
@@ -37,13 +47,23 @@
 		
 		//重置matrix的值为创建实例时的值
 		reset: function( ) {
-            this.matrix = this.originalMatrix.concat(); 
+            this.matrix = _.Float32Array( this.originalMatrix ); 
             return this;
         },
 		
 		clone: function(){
 			return new _.ConvolutionMatrixFilter(this.matrix);
 		},
+		
+		//清除矩阵滤镜效果 
+		clear: function( ) {
+            this.matrix = _.Float32Array( [
+								0, 0, 0,
+								0, 1, 0,
+								0, 0, 0
+							]); 
+            return this;
+        },
 		
 		setAwakeRedChannel : function(bool){
 			if( bool === undefined ) bool = true;

@@ -9,13 +9,16 @@
     
     //构造函数
 	_.ColorMatrixFilter = _.ColorMatrixFilter || function(mat){
-		this.matrix = mat&&mat.concat() || [
-								1, 0, 0, 0, 0, 
-								0, 1, 0, 0, 0, 
-								0, 0, 1, 0, 0, 
-								0, 0, 0, 1, 0
-							];
-		this.originalMatrix = this.matrix.concat();
+		
+		this.matrix = mat && _.Float32Array( mat ) || _.Float32Array( [
+														1, 0, 0, 0, 0, 
+														0, 1, 0, 0, 0, 
+														0, 0, 1, 0, 0, 
+														0, 0, 0, 1, 0
+														] )
+		this.originalMatrix = _.Float32Array( this.matrix )
+		
+		
 	};
     
     
@@ -552,17 +555,17 @@
 		},
 		//重置matrix的值为创建实例时的值
 		reset: function( ) {
-            this.matrix = this.originalMatrix.concat(); 
+            this.matrix = _.Float32Array( this.originalMatrix );
             return this;
         },
 		//清除矩阵滤镜效果 
 		clear: function( ) {
-            this.matrix = [
+            this.matrix = _.Float32Array( [
 								1, 0, 0, 0, 0, 
 								0, 1, 0, 0, 0, 
 								0, 0, 1, 0, 0, 
 								0, 0, 0, 1, 0
-							]; 
+							]); 
             return this;
         },
 		

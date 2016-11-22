@@ -42,7 +42,13 @@
 	};
 	
 	
-    
+	_.Float32Array = function(a){
+		return new ((typeof Float32Array !== "undefined") ? Float32Array : Array)(a);
+	};
+	
+	
+	
+	
 	//构造函数
 	_.Create = function(imgObj){
 		//强制使用new
@@ -172,24 +178,60 @@
 		
 		if(!imgData) throw('parameters imgData are required');
 		
-		/*var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
-		var arr_img = new ImageData(arr, 2, 2);
-		window.cont2D.putImageData(arr_img, 500, 500);
-		
-		
-		var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
-		var arr_img = window.cont2D.createImageData(2,2)
-		arr_img.data.set(arr);
-		window.cont2D.putImageData(arr_img, 550, 550);*/
-		
 		var arr = new Uint8ClampedArray(imgData.data);
 		var arr_img = new ImageData(arr, imgData.width, imgData.height);
 
 		return arr_img;
 		
 	};
-
 	
+	
+	
+	
+	//矩阵运算
+	_.MMatrix = {
+		
+		//矩阵加法
+		add : function (m1, m2){
+			
+			var l = m1.length,
+				i = 0,
+				m = new Float32Array(m1.length);
+			
+			while (i<l) { m[i]=m1[i] + m2[i]; i++; }
+			
+			return m;
+			
+		},
+		//矩阵减法
+		subtract : function (m1, m2){
+			
+			var l = m1.length,
+				i = 0,
+				m = new Float32Array(m1.length);
+			
+			while (i<l) { m[i]=m1[i]-m2[i]; i++; }
+			
+			return m;
+			
+		},
+		//矩阵与标量相乘
+		multiplyScalar : function (m1, s){
+			
+			if (1==s) return new CM(m1);
+			
+			var l = m1.length,
+				i = 0,
+				m = new Float32Array(m1.length);
+			
+			while (i<l) { m[i]=m1[i]*s; i++; }
+			
+			return m;
+		},
+		
+		
+	
+	}
 	 
 	
 }(window,document));
