@@ -20,7 +20,12 @@
 window.onload = function(){
 
 	
-	
+	initCanvas({
+		imgW:195,
+		imgH:195,
+		imgMargin:5,
+		rowLen:5
+	})
     //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
 	
 
@@ -63,12 +68,12 @@ window.onload = function(){
 			
 			return false
 			
-			this.width = imgW;
-			this.height = imgH;
+			this.width = 195;
+			this.height = 195;
 	
 			var F1 =  FILTER.Create(this);
 			
-			F1.setBounds(0,0,imgW,imgH);//设置图片的显示区域
+			F1.setBounds(0,0,195,195);//设置图片的显示区域
 			
 			addImgToCan(F1, 'original');//第一张 显示原图
 			
