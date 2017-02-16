@@ -12,7 +12,7 @@ window.canEle = null;
 	
 	var imgEleBox = document.getElementById('imgEleBox'),
         imgMargin = 5,
-        rowLen = 5;
+        rowLen = 8;
 	window.canEle = document.getElementById('canvas');
 	window.canW = imgW*rowLen+imgMargin*(rowLen-1);
 	window.canH = 1500;
