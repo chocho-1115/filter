@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <head>
-<title>colorMatrixFilter</title>
+<title>ConvolutionMatrixFilter</title>
 <link rel="stylesheet" href="css/examples.css" />
 </head>
 <body>
@@ -18,92 +18,306 @@
 <script src="js/ConvolutionMatrixFilter.js"></script>
 
 <script type="text/javascript">
+function fft(dataArray) {
+    // 复数乘法
+    this.mul = function(a, b) {
+        if(typeof(a)!=='object') {
+            a = {real: a, imag: 0}
+        }
+        if(typeof(b)!=='object') {
+            b = {real: b, imag: 0}
+        }
+        return {
+            real: a.real*b.real-a.imag*b.imag,
+            imag: a.real*b.imag+a.imag*b.real
+        };
+    };
+
+    // 复数加法
+    this.add = function(a, b) {
+        if(typeof(a)!=='object') {
+            a = {real: a, imag: 0}
+        }
+        if(typeof(b)!=='object') {
+            b = {real: b, imag: 0}
+        }
+        return {
+            real: a.real+b.real,
+            imag: a.imag+b.imag
+        };
+    };
+
+    // 复数减法
+    this.sub = function(a, b) {
+        if(typeof(a)!=='object') {
+            a = {real: a, imag: 0}
+        }
+        if(typeof(b)!=='object') {
+            b = {real: b, imag: 0}
+        }
+        return {
+            real: a.real-b.real,
+            imag: a.imag-b.imag
+        };
+    };
+
+    // 倒位序排列
+    this.sort = function(data, r) {
+        if(data.length <=2) {
+            return data;
+        }
+        var index = [0,1];
+        for(var i=0; i<r-1; i++) {
+            var tempIndex = [];
+            for(var j=0; j<index.length; j++) {
+                tempIndex[j] = index[j]*2;
+                tempIndex[j+index.length] = index[j]*2+1;
+            }
+            index = tempIndex;
+        }
+        var datatemp = [];
+        for(var i=0; i<index.length; i++) {
+            datatemp.push(data[index[i]]);
+        }
+        return datatemp;
+    };
+
+    var dataLen = dataArray.length;
+    var r = 1; // 迭代次数
+    var i = 1;
+    while(i*2 < dataLen) {
+        i *= 2;
+        r++;
+    }
+    var count = 1<<r; // 相当于count=2^r
+
+    // 如果数据dataArray的长度不是2^N，则开始补0
+    for(var i=dataLen; i<count; i++) {
+        dataArray[i] = 0;
+    }
+
+    // 倒位序处理
+    dataArray = this.sort(dataArray, r);
+
+    // 计算加权系数w
+    var w = [];
+    for(var i=0; i<count/2; i++) {
+        var angle = -i*Math.PI*2/count;
+        w.push({real: Math.cos(angle), imag: Math.sin(angle)});
+    }
+
+    for(var i=0; i<r; i++) { // 级循环
+        var group = 1<<(r-1-i);
+        var distance = 1<<i;
+        var unit = 1<<i;
+        for(var j=0; j<group; j++) { // 组循环
+            var step = 2*distance*j;
+            for(var k=0; k<unit; k++) { // 计算单元循环
+                var temp = this.mul(dataArray[step+k+distance], w[count*k/2/distance]);
+                dataArray[step+k+distance] = this.sub(dataArray[step+k], temp);
+                dataArray[step+k] = this.add(dataArray[step+k], temp);
+            }
+        }
+    }
+    return dataArray;
+}
+
+
+function ifft(dataArray) {
+    for(var i=0, dataLen=dataArray.length; i<dataLen; i++) {
+        if(typeof(dataArray[i])!='object'){
+            dataArray[i] = {
+                real: dataArray[i],
+                imag: 0
+            }
+        }
+        dataArray[i].imag *= -1;
+    }
+    dataArray = fft(dataArray);
+    for(var i=0, dataLen=dataArray.length; i<dataLen; i++) {
+        dataArray[i].real *= 1/dataLen;
+        dataArray[i].imag *= -1/dataLen;
+    }
+    return dataArray;
+}
+
+function fft2(dataArray, width, height) {
+    var r = 1;
+    var i = 1;
+    while(i*2 < width) {
+        i *= 2;
+        r++;
+    }
+    var width2 = 1<<r;
+    var r = 1;
+    var i = 1;
+    while(i*2 < height) {
+        i *= 2;
+        r++;
+    }
+    var height2 = 1<<r;
+
+    var dataArrayTemp = [];
+    for(var i=0; i<height2; i++) {
+        for(var j=0; j<width2; j++) {
+            if(i>=height || j>=width) {
+                dataArrayTemp.push(0);
+            }
+            else {
+                dataArrayTemp.push(dataArray[i*width+j]);
+            }
+        }
+    }
+
+    dataArray = dataArrayTemp;
+    width = width2;
+    height = height2;
+
+    var dataTemp = [];
+    var dataArray2 = [];
+    for(var i=0; i<height; i++) {
+        dataTemp = [];
+        for(var j=0; j<width; j++) {
+            dataTemp.push(dataArray[i*width+j]);
+        }
+        dataTemp = fft(dataTemp);
+        for(var j=0; j<width; j++) {
+            dataArray2.push(dataTemp[j]);
+        }
+    }
+    dataArray = dataArray2;
+    dataArray2 = [];
+    for(var i=0; i<width; i++) {
+        var dataTemp = [];
+        for(var j=0; j<height; j++) {
+            dataTemp.push(dataArray[j*width+i]);
+        }
+        dataTemp = fft(dataTemp);
+        for(var j=0; j<height; j++) {
+            dataArray2.push(dataTemp[j]);
+        }
+    }
+    dataArray = [];
+    for(var i=0; i<height; i++) {
+        for(var j=0; j<width; j++) {
+            dataArray[j*height+i] = dataArray2[i*width+j];
+        }
+    }
+    return dataArray;
+}
+
+
 
 window.onload = function(){
-
 	
+	var imgW = imgH = 150;
+	
+	initCanvas({
+		imgW:imgW,
+		imgH:imgH,
+		imgMargin:5,
+		rowLen:8
+	})
 	
     //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
 	
-    FILTER.preload(['images/3.jpg','images/10.jpg','images/11.gif'],{fileload:function(item){
+    FILTER.preload(['images/img.jpg','images/10.jpg','images/11.gif'],{fileload:function(item){
 			
 				item.result.width=imgW;//这里设置图片宽高 是会缩放图片的
-				item.result.height=imgH;
+				item.result.height=imgW;
 			
 				var F1 = new FILTER.Create(item.result);
 			
-				F1.setBounds(0, 0, imgW, imgH);
+				F1.setBounds(0, 0, imgW, imgW);
 
 				//显示原图
 				addImgToCan(F1,'original');
 				
-			//var copyData = F1.copyData();	
-				
 			var matrix = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix);
 			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕（卷积核:3*3）');//浮雕
-						
-			F1.reset();
-			var matrix_ = [-1, -1, -1, -1, -1,
-						  -1,  2,  2,  2, -1,
-						  -1,  2,  8,  2, -1,
-						  -1,  2,  2,  2, -1,
-						  -1, -1, -1, -1, -1];
+			addImgToCan(F1,'边缘查找（3*3）');
 			
+			F1.reset();
+			var matrix_ = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
 			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕（5*5）');//浮雕
+			addImgToCan(F1,'索贝尔横向边缘检测（3*3）');
 			
 			F1.reset();
-			cmf.reset();
-			cmf.awakeChannels[2] = false;
-			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕 不计算蓝色通道（5*5）');//浮雕
+			var matrix_ = [0, 0, 0, -1, 1, 0, 0, 0, 0];
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
+			cmf.apply(F1.imgData,1,100);
+			addImgToCan(F1,'横向边缘检测（3*3）');
 			
 			F1.reset();
-			cmf.reset();
-			cmf.setAwakeChannel(false,false,true)
+			var matrix_ = [1,1,1,1,1,1,1,1,1];
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
+			//cmf.awakeChannels[2] = false;
+			cmf.apply(F1.imgData,9,0);
+			addImgToCan(F1,'模糊（3*3）');
+			
+			F1.reset();
+			var matrix_ = [0,-1,0,-1,5,-1,0,-1,0];
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
 			cmf.apply(F1.imgData);
-			addImgToCan(F1,'浮雕 只计算蓝色通道（5*5）');//浮雕
+			addImgToCan(F1,'锐化（3*3）');
 			
-			//console.log(cmf)
+			F1.reset();
+			var matrix_ = [-2, -1, 0, -1, 1, 1, 0, 1, 2];
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
+			//cmf.setAwakeChannel(false,false,true)
+			cmf.apply(F1.imgData);
+			addImgToCan(F1,'浮雕（3*3）');
 			
-///////////////	
+			
+			
+			F1.reset();
+			var matrix_ = [0, 0, 0, 0, 2, 0, 0, 0, 0];
+			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
+			cmf.apply(F1.imgData, 1,-150);
+			addImgToCan(F1,'对比度增强（3*3）');
+			
+			
+			
+			
 			
 
 			
 		},complete:function(result){
-			
-			/*---------------------*/
 			console.log(result)
-			result[2].width=imgW;//这里设置图片宽高 是会缩放图片的
-			result[2].height=imgH;
+			/*---------------------*/
+			//console.log(result)
+			result[1].width=imgW;//这里设置图片宽高 是会缩放图片的
+			result[1].height=imgW;
 		
-			var F1 = new FILTER.Create(result[2]);
+			var F1 = new FILTER.Create(result[1]);
 		
-			F1.setBounds(0, 0, imgW, imgH);
-
+			//F1.setBounds(0, 0, imgW, imgW);
 			
-				
 			//var copyData = F1.copyData();	
 				
 			var matrix = [2, 4, 5, 4, 2,
-						  4,  9,  12,  9, 4,
-						  5,  12,  15,  12, 5,
-						  4,  9,  12,  9, 4,
+						  4, 9, 12,9, 4,
+						  5, 12,15,12,5,
+						  4, 9, 12,9, 4,
 						  2, 4, 5, 4, 2];
 						  
-			var matrix_ = FILTER.MMatrix.multiplyScalar(matrix,1/139)
+			var matrix_ = FILTER.MMatrix.multiplyScalar(matrix,1/139);
 			var cmf = new FILTER.ConvolutionMatrixFilter(matrix_);
 			cmf.apply(F1.imgData);
 			addImgToCan(F1,'消除噪声（卷积核:3*3）');//浮雕
-						
+					
+					
+			//F1.reset()	
+			//console.log(F1.imgData.data.length)
+			//console.log(fft2(F1.imgData.data,F1.imgData.width,F1.imgData.height).length)
 			
+			console.log(fft(F1.imgData.data,F1.imgData.width,F1.imgData.height).length)
 			
-			
-			
-			
+			F1.imgData.data.set(fft(F1.imgData.data,F1.imgData.width,F1.imgData.height));
+			//console.log(F1.imgData.data.length)
+			addImgToCan(F1,'消除噪声（卷积核:3*3）');//浮雕
 			
 			
 			

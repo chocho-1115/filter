@@ -1,21 +1,19 @@
 
-window.imgW = 195;
-window.imgH = 195;
+
 window.addImgToEle = null;
 window.addImgToCan = null;
 window.cont2D = null;
-window.canW = 0;
-window.canH = 0;
+
 window.canEle = null;
 
-(function(){
+
+
+function initCanvas(opt){
 	
-	var imgEleBox = document.getElementById('imgEleBox'),
-        imgMargin = 5,
-        rowLen = 5;
-	window.canEle = document.getElementById('canvas');
-	window.canW = imgW*rowLen+imgMargin*(rowLen-1);
-	window.canH = 1500;
+	var imgEleBox = document.getElementById('imgEleBox');
+	var canEle = document.getElementById('canvas');
+	var canW = opt.imgW*opt.rowLen+opt.imgMargin*(opt.rowLen-1);
+	var canH = 1500;
 	
 	canEle.width = canW;
 	canEle.height = canH;
@@ -40,19 +38,19 @@ window.canEle = null;
 		
 	window.addImgToCan = function(data,name){
 		
-		var x = name != undefined ? num%rowLen*(imgW+imgMargin) : 0,
-			y = name != undefined ? Math.floor(num/rowLen)*(imgH+imgMargin) : 0;
+		var x = name != undefined ? num%opt.rowLen*(opt.imgW+opt.imgMargin) : 0,
+			y = name != undefined ? Math.floor(num/opt.rowLen)*(opt.imgH+opt.imgMargin) : 0;
 
 		cont2D.putImageData(data.imgData||data,x,y);
 		if(name){
 			cont2D.fillStyle="rgba(0,0,0,.6)";
-			cont2D.rect(x,y,imgW,imgH*.2);
-			cont2D.fillRect(x,y,imgW,imgH*.2);
+			//cont2D.rect(x,y,opt.imgW,opt.imgH*.2);
+			cont2D.fillRect(x,y,opt.imgW,opt.imgH*.2);
 			
 			cont2D.fillStyle = '#ccc';
 			cont2D.font="12px Verdana";
 			cont2D.textBaseline="top";
-			cont2D.fillText(name,x+3,y+(imgH*.2-12)/2);
+			cont2D.fillText(name,x+3,y+(opt.imgH*.2-12)/2);
 		}
 		num++;
     }
@@ -63,6 +61,6 @@ window.canEle = null;
 	
 	
 
-}());
+};
 
 

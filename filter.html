@@ -23,21 +23,26 @@ window.onload = function(){
 	//imgO.height = 200;
 	imgO.onload = function(){
 		
+		initCanvas({
+			imgW:195,
+			imgH:195,
+			imgMargin:5,
+			rowLen:5
+		})
 		
-		
-		this.width = imgW;
-		this.height = imgH;
+		this.width = 195;
+		this.height = 195;
 
 		var F1 =  FILTER.Create(this);
         
-		F1.setBounds(0,0,imgW,imgH);//设置图片的显示区域
+		F1.setBounds(0,0,195,195);//设置图片的显示区域
 		
 		addImgToCan(F1, 'original');//第一张 显示原图
 		
 		
 		var copyData = F1.copyData();//复制imgData数据 因为imgData是引用型数据 所以每次使用滤镜功能 都会改变F1的imgData数据
 		
-		F1.setBounds(0,0,imgW*.8,imgH*.8);
+		F1.setBounds(0,0,195*.8,195*.8);
 		
 		addImgToCan(F1, '裁切80%');
 		

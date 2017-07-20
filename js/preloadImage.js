@@ -7,30 +7,39 @@ this.FILTER = this.FILTER || {};
 	
 	var F = FILTER;
 	
-	//callbackObj
+	//params
 	//{fileload: function(item){}, complete: function(result){}}
-	F.preload = F.preload || function(srcArr, callbackObj){
+	F.preload = F.preload || function(srcArr, params){
 		
 		if(typeof(srcArr) == 'string'){
 			srcArr = [{path:srcArr}];
 		};
 		
-		if(srcArr.length==0){callbackObj.complete&&callbackObj.complete({});return false};
+		if(srcArr.length==0){params.complete&&params.complete({});return false};
+		//console.log(srcArr)
 		
 		var num = 0,
-			imgArrObj = {};
-		
-		for(var i = 0, len = srcArr.length; i < len; i++){
+			imgArrObj = {},
+			minTime = params.minTime || 0,
+			len = srcArr.length,
+			t = minTime/len,
+			st = (new Date()).getTime();
+			
+		for(var i = 0; i < len; i++){
+			
 			(function(i){
 				
 				var newImg = new Image();
 				
 				newImg.onload = newImg.onerror = function(e) {
 					e = e || window.event;
-					endLoad(this, e.type, i);
+					var self = this;
+					setTimeout(function(){
+						endLoad(self,e.type,i);
+					},t*i-( (new Date()).getTime() -st));
 				};
 				
-				if(typeof(srcArr[i]) == 'string') srcArr[i] = {path:srcArr[i]};
+				if(typeof(srcArr[i]) == 'string') srcArr[i] = {path:srcArr[i],name:i};
 				
 				newImg.src = srcArr[i].path;
 				
@@ -47,12 +56,15 @@ this.FILTER = this.FILTER || {};
 			srcArr[i]['index'] = i;
 			srcArr[i]['status'] = eType == 'load' ? 200 : 'Failed to load';
 			
-			imgArrObj[srcArr[i].id || i+''] = this_;
+			imgArrObj[srcArr[i].name] = this_;
 			
-			callbackObj.fileload&&callbackObj.fileload(srcArr[i]);
+			params.fileload&&params.fileload(srcArr[i]);
 			
-			if(num === len) callbackObj.complete&&callbackObj.complete(imgArrObj);
+			if(num === len) params.complete&&params.complete(imgArrObj);
 		}
+		
+		
+		
 		
 	};
 	

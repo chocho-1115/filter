@@ -65,21 +65,27 @@
             return this;
         },
 		
+		add: function( mat ) {
+			//this.matrix = ( this.matrix ) ? this.CMconcat(this.matrix,mat) : mat;
+			return this;
+		},
+		
+		//是否唤醒红色通道 关闭红色通道 滤镜讲不对红色通道起作用
 		setAwakeRedChannel : function(bool){
 			if( bool === undefined ) bool = true;
-			this.awakeChannels[ _.CHANNEL.RED   ] = bool;
+			this.awakeChannels[ _.CHANNEL.RED ] = bool;
 			return this;
 		},
 		
 		setAwakeGreenChannel : function(bool){
 			if( bool === undefined ) bool = true;
-			this.awakeChannels[ _.CHANNEL.GREEN   ] = bool;
+			this.awakeChannels[ _.CHANNEL.GREEN ] = bool;
 			return this;
 		},
 		
 		setAwakeBlueChannel : function(bool){
 			if( bool === undefined ) bool = true;
-			this.awakeChannels[ _.CHANNEL.BLUE   ] = bool;
+			this.awakeChannels[ _.CHANNEL.BLUE ] = bool;
 			return this;
 		},
 		
@@ -113,9 +119,9 @@
 			// 对除了边缘的点之外的内部点的 RGB 进行操作，透明度在最后都设为 255
 			
 			if(Math.floor(r)!=r)throw('the length of the parameter m should be 9,25,49...');
-
+			
 			switch(r){
-				case 10:
+				case 1:
 					for (var y = 1; y < h-1; y += 1) {//行
 						for (var x = 1; x < w-1; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
@@ -131,7 +137,7 @@
 						}
 					}
 				break;
-				case 20:
+				case 2:
 					for (var y = 2; y < h-2; y += 1) {//行
 						for (var x = 2; x < w-2; x += 1) {//列
 							for (var c = 0; c < 3; c += 1) {//rgb
@@ -250,7 +256,7 @@
 				}
 			}
 			
-			
+
 			
 			//水平边缘
 			

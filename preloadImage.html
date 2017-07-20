@@ -19,17 +19,23 @@
 
 window.onload = function(){
 	
-
+	initCanvas({
+		imgW:195,
+		imgH:195,
+		imgMargin:5,
+		rowLen:5
+	})
+	
 	var imgO = new Image();
 	//imgO.width = 200;
 	//imgO.height = 200;
 	imgO.onload = function(){
-		this.width = imgW;
-		this.height = imgH;
+		this.width = 195;
+		this.height = 195;
 
 		var F1 = FILTER.Create(this);
         
-		F1.setBounds(0,0,imgW,imgH);
+		F1.setBounds(0,0,195,195);
 		
 		addImgToCan(F1, 'onload');//第一张 显示原图
 		
@@ -48,10 +54,11 @@ window.onload = function(){
 	];
 	
     FILTER.preload(imgSrcArr,{
+							minTime:6000,
 							fileload: function(item){
-						
-								item.result.width=window.imgW;//这里设置图片宽高 是会缩放图片的
-								item.result.height=window.imgH;
+								console.log(item)
+								item.result.width=195;//这里设置图片宽高 是会缩放图片的
+								item.result.height=195;
 								
 								var F1 =  FILTER.Create(item.result);
 								
