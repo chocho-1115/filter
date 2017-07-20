@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>imgData</title>
+<link rel="stylesheet" href="css/examples.css" />
+</head>
+<body>
+<div id="imgEleBox"></div>
+<canvas id="canvas" width="640" height="800"></canvas>
+</body>
+</html>
+
+<script src="js/examples.js"></script>
+
+<script src="js/Filter.js"></script>
+
+<script type="text/javascript">
+
+window.onload = function(){
+
+	
+	initCanvas({
+		imgW:195,
+		imgH:195,
+		imgMargin:5,
+		rowLen:5
+	})
+    //用preload加载图片 如果只加载一张图片  preload的第一个参数可以是字符串 
+	
+
+	var imgO = new Image();
+	//imgO.width = 200;
+	//imgO.height = 200;
+	imgO.onload = function(){		  
+			
+			
+			
+			
+			
+			var sT = new Date();
+			
+			var v = []
+			for(var i = 0;i<1000000;i+=8){
+				v.push(i)
+				v.push(i+1)
+				v.push(i+2)
+				v.push(i+3)
+				
+				v.push(i+4)
+				v.push(i+5)
+				v.push(i+6)
+				v.push(i+7)
+				//v++;
+			}
+			console.log(v.length)
+			
+			
+			
+			
+			
+			console.log((new Date())-sT)//1887
+			
+			
+			
+			
+			
+			
+			return false
+			
+			this.width = 195;
+			this.height = 195;
+	
+			var F1 =  FILTER.Create(this);
+			
+			F1.setBounds(0,0,195,195);//设置图片的显示区域
+			
+			addImgToCan(F1, 'original');//第一张 显示原图
+			
+			
+			
+			
+			var w = Math.floor(F1.imgData.width/4);
+			var h = Math.ceil(F1.imgData.width * F1.imgData.height/w)
+			console.log(w*h,F1.imgData.width * F1.imgData.height)
+			
+			var arr = new Uint8ClampedArray( F1.imgData.data );
+			var arr_img = new ImageData(arr, w, h);
+			window.cont2D.putImageData(arr_img, 500, 500);
+			
+			
+			var arr = new Uint8ClampedArray( [255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255] );
+			var arr_img = window.cont2D.createImageData(2,3)
+			arr_img.data.set(arr);
+			window.cont2D.putImageData(arr_img, 550, 550);
+			
+	};
+	imgO.src = 'images/7.jpg';
+	
+	
+
+};
+
+
+
+
+
+
+
+
+</script>
