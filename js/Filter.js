@@ -162,15 +162,16 @@
 				imgH = imgData.height,
 				pieceW = params.pieceW||imgW/30,
 				pieceH = params.pieceH||imgH/30,
-				regX = params.regX||0.5,
-				regY = params.regY||0.5,
+				pieceXR = Math.floor(pieceW/2),
+				pieceYR = Math.floor(pieceH/2),
+				regX = params.regX||0,
+				regY = params.regY||0,
 				xMax = Math.floor(imgW/pieceW),
 				yMax = Math.floor(imgH/pieceH);
 			
 			for(var x = 0;x<xMax;x++){
 				for(var y = 0;y<yMax;y++){
-					var index = ((y+0.5)*pieceH*imgW + (x+0.5)*pieceW)*4;
-					
+					var index = ((y*pieceH+pieceYR)*imgW + (x*pieceW+pieceXR))*4;
 					params.add({
 						r:imgData.data[index],
 						g:imgData.data[index+1],
