@@ -34,16 +34,17 @@ window.onload = function(){
 		
 		
 		F1.getParticles({
+			width:400,
+			height:400,
 			pieceW:10,
 			pieceH:10,
 			regX:0.5,
 			regY:0.5,
 			add:function(item){
 				cont2D.fillStyle='rgba('+ item.r + ','+ item.g + ','+ item.b + ','+ item.a +')';
-				cont2D.fillRect((item.x*10+400),(item.y*10+400),5,5);
+				cont2D.fillRect((item.x+400),(item.y+400),5,5);
 			}
 		});
-		
 		
 		
 		

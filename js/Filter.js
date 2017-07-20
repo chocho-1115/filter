@@ -167,8 +167,11 @@
 				regX = params.regX||0,
 				regY = params.regY||0,
 				xMax = Math.floor(imgW/pieceW),
-				yMax = Math.floor(imgH/pieceH);
-			
+				yMax = Math.floor(imgH/pieceH),
+				scaleX = (params.width||imgW)/xMax,
+				scaleY = (params.height||imgH)/yMax;
+				
+				
 			for(var x = 0;x<xMax;x++){
 				for(var y = 0;y<yMax;y++){
 					var index = ((y*pieceH+pieceYR)*imgW + (x*pieceW+pieceXR))*4;
@@ -177,13 +180,18 @@
 						g:imgData.data[index+1],
 						b:imgData.data[index+2],
 						a:imgData.data[index+3],
-						x:x-xMax*regX,
-						y:y-yMax*regY
+						x:(x-xMax*regX)*scaleX,
+						y:(y-yMax*regY)*scaleY
 					});
 					
 				}
 			}
 		}
+		
+		
+		
+		
+		
 	};
 	/*########################################################################################*/
 	
