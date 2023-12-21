@@ -1,5 +1,7 @@
-// FilterJs.js Javascript Library by hylink 杨燚平 2015-07-03 email:849890769@qq.com
-
+/*! Javascript Library
+ *  杨燚平 email:849890769@qq.com 
+ *  https://github.com/chocho-1115/filter
+*/
 ;var FILTER=this.FILTER||{};
 
 (function(win,doc){
